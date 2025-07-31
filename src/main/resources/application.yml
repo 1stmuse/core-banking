@@ -1,0 +1,9 @@
+
+spring:
+  profiles:
+    active: dev
+  application:
+    name: core-banking
+server:
+  servlet:
+    context-path: /api/v1
