@@ -1,28 +1,40 @@
 package com.muse.core_banking.config;
 
+import com.muse.core_banking.security.Jwtfilter;
+import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
+@AllArgsConstructor
 public class SecurityConfig {
 
+    private final Jwtfilter jwtfilter;
+    private final AuthenticationProvider authenticationProvider;
+
     private static final String[] PUBLIC_ROUTES = {
-            "/api/auth/**",
+            "/api/v1/auth/**",  // With context path
+            "/auth/**",         // Without context path (defensive)
+            "/api/v1/h2-console/**",
             "/h2-console/**",
+            "/error"
     };
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         return http
-                .csrf(csrf -> csrf.disable())
-
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(AbstractHttpConfigurer::disable)
                 .headers(headers -> headers
                         .frameOptions(frame -> frame.sameOrigin())
                         // Disable X-Frame-Options for H2 console
@@ -30,12 +42,14 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(PUBLIC_ROUTES).permitAll()
-
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
+                .authenticationProvider(authenticationProvider)
+                .addFilterBefore(jwtfilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
+
 }
