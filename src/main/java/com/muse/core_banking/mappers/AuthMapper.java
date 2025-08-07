@@ -2,7 +2,7 @@ package com.muse.core_banking.mappers;
 
 import com.muse.core_banking.dto.auth.CreateUserResponseDto;
 import com.muse.core_banking.dto.auth.LoginResponseDto;
-import com.muse.core_banking.entities.users.User;
+import com.muse.core_banking.entities.User;
 import org.springframework.stereotype.Service;
 
 @Service

@@ -1,6 +1,6 @@
 package com.muse.core_banking.security;
 
-import com.muse.core_banking.repositories.auth.AuthRepository;
+import com.muse.core_banking.repositories.AuthRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

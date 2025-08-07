@@ -1,17 +1,13 @@
-package com.muse.core_banking.services.auth;
+package com.muse.core_banking.services;
 
-import com.muse.core_banking.dto.auth.EmailPasswordRequest;
-import com.muse.core_banking.dto.auth.LoginResponseDto;
-import com.muse.core_banking.dto.auth.CreateUserResponseDto;
-import com.muse.core_banking.dto.auth.VerifyEmailRequest;
-import com.muse.core_banking.entities.users.User;
+import com.muse.core_banking.dto.auth.*;
+import com.muse.core_banking.entities.User;
 import com.muse.core_banking.mappers.AuthMapper;
-import com.muse.core_banking.repositories.auth.AuthRepository;
+import com.muse.core_banking.repositories.AuthRepository;
 import com.muse.core_banking.security.JwtService;
-import com.muse.core_banking.services.EmailService;
 import com.muse.core_banking.utils.Helpers;
-import jakarta.mail.MessagingException;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -23,6 +19,7 @@ import java.util.Optional;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class AuthService {
 
     private final AuthRepository authRepository;
@@ -32,19 +29,42 @@ public class AuthService {
     private final AuthMapper authMapper;
     private final EmailService emailService;
 
+    public void resetPassword(ResetPasswordRequestDto request) throws BadRequestException {
+        Optional<User> user = findUser(request.email());
+        if(user.isEmpty()){
+            var savedUser = user.get();
+            savedUser.setPassword(passwordEncoder.encode(request.newPassword()));
+            authRepository.save(savedUser);
+        }else {
+            throw new BadRequestException("Bad request");
+        }
+    }
+
+    public void requestOtp(RequestOtpDto request) throws BadRequestException{
+        Optional<User> user = findUser(request.email());
+        if(user.isPresent()){
+            try{
+                emailService.sendVerifyEmailMail(request.email(), Helpers.generateOtp(6), "verify_account", "OTP request");
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+        throw new BadRequestException("User not found");
+    }
+
     public void verifyEmail(VerifyEmailRequest request) throws BadRequestException {
-        Optional<User> user = authRepository.findByEmail(request.email());
+        Optional<User> user = findUser(request.email());
         if(user.isPresent()){
             var oldUser = user.get();
             oldUser.setEnabled(true);
             authRepository.save(oldUser);
             return;
         }
-        throw new BadRequestException("");
+        throw new BadRequestException("Could not verify email");
     }
 
-    public CreateUserResponseDto saveUser(EmailPasswordRequest request) throws BadRequestException, MessagingException {
-        Optional<User> user = authRepository.findByEmail(request.email());
+    public CreateUserResponseDto saveUser(EmailPasswordRequest request) throws BadRequestException {
+        Optional<User> user = findUser(request.email());
         if(user.isPresent()){
             throw new BadRequestException("User already exist");
         }
@@ -58,7 +78,7 @@ public class AuthService {
 
 
         try {
-            emailService.sendVerifyEmailMail(request.email(), Helpers.generateOtp(6), "verify_account", "Account Verification");
+//            emailService.sendVerifyEmailMail(request.email(), Helpers.generateOtp(6), "verify_account", "Account Verification");
             var saveduser = authRepository.save(newUser);
 
             return authMapper.mapToCreateUserResponse(saveduser);
@@ -79,6 +99,10 @@ public class AuthService {
         var token = jwtService.generateToken(user);
 
         return authMapper.mapToLoginResponseDto(user, token);
+    }
+
+    private Optional<User> findUser(String email){
+        return authRepository.findByEmail(email);
     }
 
 }

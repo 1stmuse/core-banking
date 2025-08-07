@@ -1,6 +1,6 @@
-package com.muse.core_banking.repositories.auth;
+package com.muse.core_banking.repositories;
 
-import com.muse.core_banking.entities.users.User;
+import com.muse.core_banking.entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

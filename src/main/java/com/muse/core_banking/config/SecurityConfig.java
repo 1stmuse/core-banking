@@ -22,11 +22,11 @@ public class SecurityConfig {
     private final AuthenticationProvider authenticationProvider;
 
     private static final String[] PUBLIC_ROUTES = {
-            "/api/v1/auth/**",  // With context path
-            "/auth/**",         // Without context path (defensive)
-            "/api/v1/h2-console/**",
+            "/auth/**",
             "/h2-console/**",
-            "/error"
+            "/error",
+            "/swagger-ui/**",
+            "/v3/api-docs/**"
     };
 
     @Bean
