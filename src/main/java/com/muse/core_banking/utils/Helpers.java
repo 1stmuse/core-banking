@@ -1,5 +1,6 @@
 package com.muse.core_banking.utils;
 
+import com.muse.core_banking.entities.Transaction;
 import com.muse.core_banking.entities.User;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
@@ -9,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import java.beans.PropertyDescriptor;
 import java.security.SecureRandom;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
@@ -59,5 +61,13 @@ public class Helpers {
 
 
         return String.format("%s%03d", defaultNo, randomPart);
+    }
+
+    public static Long sumDailyTransaction(List<Transaction> transactions){
+        var amount = 0L;
+        for (var t: transactions){
+            amount += t.getAmount();
+        }
+        return amount;
     }
 }

@@ -32,6 +32,9 @@ public class Customer {
     @Enumerated(EnumType.STRING)
     private KYCStatus kycStatus = KYCStatus.UNAVAILABLE;
 
+    private Long dailyTransactionLimit;
+    private Long weeklyTransactionLimit;
+
     @Enumerated(EnumType.STRING)
     private KycLevel kycLevel;
 

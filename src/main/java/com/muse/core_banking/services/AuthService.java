@@ -4,6 +4,7 @@ import com.muse.core_banking.dto.auth.*;
 import com.muse.core_banking.entities.User;
 import com.muse.core_banking.mappers.AuthMapper;
 import com.muse.core_banking.repositories.AuthRepository;
+import com.muse.core_banking.repositories.CustomerRepository;
 import com.muse.core_banking.security.JwtService;
 import com.muse.core_banking.utils.Helpers;
 import lombok.AllArgsConstructor;
@@ -12,6 +13,7 @@ import org.apache.coyote.BadRequestException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +30,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthMapper authMapper;
     private final EmailService emailService;
+    private final CustomerRepository customerRepository;
 
     public void resetPassword(ResetPasswordRequestDto request) throws BadRequestException {
         Optional<User> user = findUser(request.email());
@@ -76,7 +79,6 @@ public class AuthService {
                 .build();
 
 
-
         try {
 //            emailService.sendVerifyEmailMail(request.email(), Helpers.generateOtp(6), "verify_account", "Account Verification");
             var saveduser = authRepository.save(newUser);
@@ -99,6 +101,12 @@ public class AuthService {
         var token = jwtService.generateToken(user);
 
         return authMapper.mapToLoginResponseDto(user, token);
+    }
+
+    public void deleteUser(Authentication authUser){
+        var user = Helpers.getConnectedUser(authUser);
+        authRepository.deleteById(user.getId());
+        customerRepository.deleteByUserId(user.getId());
     }
 
     private Optional<User> findUser(String email){

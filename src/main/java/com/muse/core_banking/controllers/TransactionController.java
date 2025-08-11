@@ -1,6 +1,7 @@
 package com.muse.core_banking.controllers;
 
 import com.muse.core_banking.dto.transaction.DepositRequestDto;
+import com.muse.core_banking.dto.transaction.TransactionHistoryQuery;
 import com.muse.core_banking.dto.transaction.WithdrawalRequestDto;
 import com.muse.core_banking.enums.ApiMessage;
 import com.muse.core_banking.handlers.ResponseHandler;
@@ -62,6 +63,21 @@ public class TransactionController {
     ) throws BadRequestException {
 
         var response = transactionService.internalTransfer(requestDto, Long.parseLong(customerId));
+        return ResponseEntity.ok(
+                ResponseHandler.builder()
+                        .message(SUCCESS.getMessage())
+                        .statusCode(OK.value())
+                        .data(Optional.of(response))
+                        .build()
+        );
+    }
+
+    @GetMapping("/{customerId}")
+    public ResponseEntity<?> getTransactions(
+            @PathVariable String customerId,
+            TransactionHistoryQuery query
+    ) throws BadRequestException {
+        var response = transactionService.transactionHistory(Long.parseLong(customerId), query);
         return ResponseEntity.ok(
                 ResponseHandler.builder()
                         .message(SUCCESS.getMessage())

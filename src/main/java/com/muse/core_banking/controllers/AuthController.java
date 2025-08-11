@@ -7,10 +7,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.Optional;
 import static com.muse.core_banking.enums.ApiMessage.SUCCESS;
 import static org.springframework.http.HttpStatus.OK;
@@ -91,5 +90,14 @@ public class AuthController {
                         .statusCode(OK.value())
                         .build()
         );
+    }
+
+    @DeleteMapping("/user/delete")
+    public ResponseEntity<?> deleteUser(
+            Authentication authUser
+    ){
+        authService.deleteUser(authUser);
+
+        return ResponseEntity.ok("Success");
     }
 }

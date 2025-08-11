@@ -22,7 +22,10 @@ public class SecurityConfig {
     private final AuthenticationProvider authenticationProvider;
 
     private static final String[] PUBLIC_ROUTES = {
-            "/auth/**",
+            "/auth/emailSignup",
+            "/auth/emailLogin",
+            "/auth/email/verify",
+            "/auth/email/resetPassword",
             "/h2-console/**",
             "/error",
             "/swagger-ui/**",

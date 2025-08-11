@@ -15,6 +15,7 @@ import java.util.Date;
 @EntityListeners(AuditingEntityListener.class)
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class Transaction {
 
     @Id

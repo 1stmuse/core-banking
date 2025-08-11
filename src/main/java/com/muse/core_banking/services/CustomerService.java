@@ -62,6 +62,8 @@ public class CustomerService {
                 .firstname(request.firstname())
                 .lastname(request.lastname())
                 .dateOfBirth(request.dateOfBirth())
+                .dailyTransactionLimit(500000L)
+                .weeklyTransactionLimit(5000000L)
                 .phone(request.phone())
                 .userId(user.getId())
                 .kycStatus(KYCStatus.UNAVAILABLE)
@@ -100,4 +102,5 @@ public class CustomerService {
     private Optional<Customer> findById(Long id){
         return customerRepository.findById(id);
     }
+
 }
